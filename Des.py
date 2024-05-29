@@ -246,9 +246,11 @@ def app():
     operation = st.radio("Choose an operation:", ('Encrypt', 'Decrypt'))
 
     if operation == 'Encrypt':
-        plaintext = st.text_input("Enter plaintext for encryption:")
+        # st.title('DES Encryption and Decryption')
+        plaintext = st.text_input("Enter plaintext:")
+
         if plaintext:
-            # Generate a random key
+            # Generate a random key (for demonstration; in practice, the key should be securely managed)
             key = generate_random_key()
             key_bits = int_to_bits(int(key, 16), 64)
             keys = generate_keys(key_bits)
@@ -265,14 +267,24 @@ def app():
 
             # Convert bits to hexadecimal for easy display
             ciphertext_hex = binascii.hexlify(bytes(bits_to_int(ciphertext_bits[i:i + 8]) for i in range(0, len(ciphertext_bits), 8))).decode('utf-8')
+            
+            # Decrypt the ciphertext
+            decrypted_bits = ''
+            for i in range(0, len(ciphertext_bits), 64):
+                block = ciphertext_bits[i:i + 64]
+                decrypted_bits += des_decrypt_block(block, keys)
+
+            decrypted_padded = bits_to_text(decrypted_bits)
+            decrypted_text = unpad(decrypted_padded)
 
             # Display results
-            st.write(f"Generated Key (for decryption): {key}")
-            st.text_area("Ciphertext (hex):", ciphertext_hex, height=100)
+            st.write(f"Generated Key: {key}")
+            st.write(f"Ciphertext (hex): {ciphertext_hex}")
+            # st.write(f"Decrypted Text: {decrypted_text}")
 
     elif operation == 'Decrypt':
-        ciphertext_hex = st.text_area("Enter ciphertext for decryption (hex):")
         key = st.text_input("Enter key for decryption (hex):")
+        ciphertext_hex = st.text_area("Enter ciphertext for decryption (hex):")
 
         if ciphertext_hex and key:
             # Convert hex key to bits
