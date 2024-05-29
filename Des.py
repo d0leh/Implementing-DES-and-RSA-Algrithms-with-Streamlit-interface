@@ -198,46 +198,6 @@ def bits_to_text(bits):
 def generate_random_key():
     return binascii.hexlify(os.urandom(8)).decode('utf-8')
 
-# # Test the DES implementation
-# def test_des():
-#     # Prompt user for plaintext
-#     plaintext = input("Enter the plaintext: ")
-
-#     # Generate a random key
-#     key = generate_random_key()
-#     print(f"Generated Key: {key}")
-
-#     # Ensure the key is 64 bits
-#     key_bits = int_to_bits(int(key, 16), 64)
-#     keys = generate_keys(key_bits)
-
-#     # Pad the plaintext to ensure it is a multiple of the block size
-#     plaintext_padded = pad(plaintext, 8)
-#     plaintext_bits = text_to_bits(plaintext_padded)
-
-#     # Encrypt the plaintext
-#     ciphertext_bits = ''
-#     for i in range(0, len(plaintext_bits), 64):
-#         block = plaintext_bits[i:i + 64]
-#         ciphertext_bits += des_encrypt_block(block, keys)
-
-#     ciphertext_hex = binascii.hexlify(bytes(bits_to_int(ciphertext_bits[i:i + 8]) for i in range(0, len(ciphertext_bits), 8))).decode('utf-8')
-#     print(f"Ciphertext (hex): {ciphertext_hex}")
-
-#     # Decrypt the ciphertext
-#     decrypted_bits = ''
-#     for i in range(0, len(ciphertext_bits), 64):
-#         block = ciphertext_bits[i:i + 64]
-#         decrypted_bits += des_decrypt_block(block, keys)
-
-#     decrypted_padded = bits_to_text(decrypted_bits)
-#     decrypted_text = unpad(decrypted_padded)
-#     print(f"Decrypted: {decrypted_text}")
-
-# # Run the test
-# # test_des()
-
-
 
 def app():
     st.title('DES Encryption and Decryption')
@@ -284,7 +244,7 @@ def app():
 
     elif operation == 'Decrypt':
         key = st.text_input("Enter key for decryption (hex):")
-        ciphertext_hex = st.text_area("Enter ciphertext for decryption (hex):")
+        ciphertext_hex = st.text_input("Enter ciphertext for decryption (hex):")
 
         if ciphertext_hex and key:
             # Convert hex key to bits
