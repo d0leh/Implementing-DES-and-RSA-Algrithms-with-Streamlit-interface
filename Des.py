@@ -241,40 +241,60 @@ def generate_random_key():
 
 def app():
     st.title('DES Encryption and Decryption')
-    plaintext = st.text_input("Enter plaintext    :")
 
-    if plaintext:
-        # Generate a random key (for demonstration; in practice, the key should be securely managed)
-        key = generate_random_key()
-        key_bits = int_to_bits(int(key, 16), 64)
-        keys = generate_keys(key_bits)
+    # Allow the user to select an operation
+    operation = st.radio("Choose an operation:", ('Encrypt', 'Decrypt'))
 
-        # Pad and convert plaintext to bits
-        plaintext_padded = pad(plaintext, 8)
-        plaintext_bits = text_to_bits(plaintext_padded)
+    if operation == 'Encrypt':
+        plaintext = st.text_input("Enter plaintext for encryption:")
+        if plaintext:
+            # Generate a random key
+            key = generate_random_key()
+            key_bits = int_to_bits(int(key, 16), 64)
+            keys = generate_keys(key_bits)
 
-        # Encrypt the plaintext
-        ciphertext_bits = ''
-        for i in range(0, len(plaintext_bits), 64):
-            block = plaintext_bits[i:i + 64]
-            ciphertext_bits += des_encrypt_block(block, keys)
+            # Pad and convert plaintext to bits
+            plaintext_padded = pad(plaintext, 8)
+            plaintext_bits = text_to_bits(plaintext_padded)
 
-        # Convert bits to hexadecimal for easy display
-        ciphertext_hex = binascii.hexlify(bytes(bits_to_int(ciphertext_bits[i:i + 8]) for i in range(0, len(ciphertext_bits), 8))).decode('utf-8')
-        
-        # Decrypt the ciphertext
-        decrypted_bits = ''
-        for i in range(0, len(ciphertext_bits), 64):
-            block = ciphertext_bits[i:i + 64]
-            decrypted_bits += des_decrypt_block(block, keys)
+            # Encrypt the plaintext
+            ciphertext_bits = ''
+            for i in range(0, len(plaintext_bits), 64):
+                block = plaintext_bits[i:i + 64]
+                ciphertext_bits += des_encrypt_block(block, keys)
 
-        decrypted_padded = bits_to_text(decrypted_bits)
-        decrypted_text = unpad(decrypted_padded)
+            # Convert bits to hexadecimal for easy display
+            ciphertext_hex = binascii.hexlify(bytes(bits_to_int(ciphertext_bits[i:i + 8]) for i in range(0, len(ciphertext_bits), 8))).decode('utf-8')
 
-        # Display results
-        st.write(f"Generated Key: {key}")
-        st.write(f"Ciphertext (hex): {ciphertext_hex}")
-        st.write(f"Decrypted Text: {decrypted_text}")
+            # Display results
+            st.write(f"Generated Key (for decryption): {key}")
+            st.text_area("Ciphertext (hex):", ciphertext_hex, height=100)
+
+    elif operation == 'Decrypt':
+        ciphertext_hex = st.text_area("Enter ciphertext for decryption (hex):")
+        key = st.text_input("Enter key for decryption (hex):")
+
+        if ciphertext_hex and key:
+            # Convert hex key to bits
+            key_bits = int_to_bits(int(key, 16), 64)
+            keys = generate_keys(key_bits)
+
+            # Convert hex to bits
+            ciphertext_bits = ''.join(int_to_bits(int(ciphertext_hex[i:i + 2], 16), 8) for i in range(0, len(ciphertext_hex), 2))
+
+            # Decrypt the ciphertext
+            decrypted_bits = ''
+            for i in range(0, len(ciphertext_bits), 64):
+                block = ciphertext_bits[i:i + 64]
+                decrypted_bits += des_decrypt_block(block, keys)
+
+            decrypted_padded = bits_to_text(decrypted_bits)
+            decrypted_text = unpad(decrypted_padded)
+
+            # Display results
+            st.write(f"Decrypted Text: {decrypted_text}")
+
+            
 
 if __name__ == "__main__":
     app()
