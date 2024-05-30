@@ -3,6 +3,8 @@ import os
 import streamlit as st
 import binascii
 import os
+
+
 # Constants for DES
 IP = [58, 50, 42, 34, 26, 18, 10, 2, 
       60, 52, 44, 36, 28, 20, 12, 4, 
@@ -148,14 +150,13 @@ def generate_keys(key):
         keys.append(permute(left + right, PC2))
     return keys
 
-# Perform the Feistel function
 def feistel(right, key):
     expanded_right = permute(right, E)
     xor_result = xor(expanded_right, key)
     substituted = substitute(xor_result)
     return permute(substituted, P)
 
-# Encrypt a block of plaintext
+# Encryption
 def des_encrypt_block(plaintext, keys):
     block = permute(plaintext, IP)
     left, right = block[:32], block[32:]
@@ -165,7 +166,7 @@ def des_encrypt_block(plaintext, keys):
         right = new_right
     return permute(right + left, FP)
 
-# Decrypt a block of ciphertext
+# Decryption
 def des_decrypt_block(ciphertext, keys):
     block = permute(ciphertext, IP)
     left, right = block[:32], block[32:]
@@ -175,7 +176,6 @@ def des_decrypt_block(ciphertext, keys):
         right = new_right
     return permute(right + left, FP)
 
-# Padding and unpadding functions
 def pad(data, block_size):
     padding_len = block_size - len(data) % block_size
     padding = chr(padding_len) * padding_len
@@ -194,15 +194,13 @@ def bits_to_text(bits):
     chars = [bits_to_int(bits[i:i + 8]) for i in range(0, len(bits), 8)]
     return ''.join(chr(char) for char in chars)
 
-# Generate a random 64-bit key
+# Generate a random key
 def generate_random_key():
     return binascii.hexlify(os.urandom(8)).decode('utf-8')
 
 
 def app():
     st.title('DES Encryption and Decryption')
-
-    # Allow the user to select an operation
     operation = st.radio("Choose an operation:", ('Encrypt', 'Decrypt'))
 
     if operation == 'Encrypt':
@@ -210,25 +208,20 @@ def app():
         plaintext = st.text_input("Enter plaintext:")
 
         if plaintext:
-            # Generate a random key (for demonstration; in practice, the key should be securely managed)
             key = generate_random_key()
             key_bits = int_to_bits(int(key, 16), 64)
             keys = generate_keys(key_bits)
 
-            # Pad and convert plaintext to bits
             plaintext_padded = pad(plaintext, 8)
             plaintext_bits = text_to_bits(plaintext_padded)
 
-            # Encrypt the plaintext
             ciphertext_bits = ''
             for i in range(0, len(plaintext_bits), 64):
                 block = plaintext_bits[i:i + 64]
                 ciphertext_bits += des_encrypt_block(block, keys)
 
-            # Convert bits to hexadecimal for easy display
             ciphertext_hex = binascii.hexlify(bytes(bits_to_int(ciphertext_bits[i:i + 8]) for i in range(0, len(ciphertext_bits), 8))).decode('utf-8')
             
-            # Decrypt the ciphertext
             decrypted_bits = ''
             for i in range(0, len(ciphertext_bits), 64):
                 block = ciphertext_bits[i:i + 64]
@@ -237,7 +230,6 @@ def app():
             decrypted_padded = bits_to_text(decrypted_bits)
             decrypted_text = unpad(decrypted_padded)
 
-            # Display results
             st.write(f"Generated Key: {key}")
             st.write(f"Ciphertext (hex): {ciphertext_hex}")
             # st.write(f"Decrypted Text: {decrypted_text}")
@@ -247,14 +239,11 @@ def app():
         ciphertext_hex = st.text_input("Enter ciphertext for decryption (hex):")
 
         if ciphertext_hex and key:
-            # Convert hex key to bits
             key_bits = int_to_bits(int(key, 16), 64)
             keys = generate_keys(key_bits)
 
-            # Convert hex to bits
             ciphertext_bits = ''.join(int_to_bits(int(ciphertext_hex[i:i + 2], 16), 8) for i in range(0, len(ciphertext_hex), 2))
 
-            # Decrypt the ciphertext
             decrypted_bits = ''
             for i in range(0, len(ciphertext_bits), 64):
                 block = ciphertext_bits[i:i + 64]
@@ -263,10 +252,8 @@ def app():
             decrypted_padded = bits_to_text(decrypted_bits)
             decrypted_text = unpad(decrypted_padded)
 
-            # Display results
             st.write(f"Decrypted Text: {decrypted_text}")
 
             
-
 if __name__ == "__main__":
     app()
