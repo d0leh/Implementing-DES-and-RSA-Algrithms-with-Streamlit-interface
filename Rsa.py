@@ -1,6 +1,5 @@
 import streamlit as st
 import random
-%pip install sympy
 from sympy import isprime, mod_inverse
 
 # Function to generate a pair of RSA keys
