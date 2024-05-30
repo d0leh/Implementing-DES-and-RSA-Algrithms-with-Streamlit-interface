@@ -4,8 +4,6 @@ import streamlit as st
 import binascii
 import os
 
-
-# Constants for DES
 IP = [58, 50, 42, 34, 26, 18, 10, 2, 
       60, 52, 44, 36, 28, 20, 12, 4, 
       62, 54, 46, 38, 30, 22, 14, 6, 
@@ -109,27 +107,21 @@ P = [16, 7, 20, 21,
 SHIFT_LEFT_SCHEDULE = [1, 1, 2, 2, 2, 2, 2, 2, 
                        1, 2, 2, 2, 2, 2, 2, 1]
 
-# Convert a string of bits to an integer
 def bits_to_int(bits):
     return int(bits, 2)
 
-# Convert an integer to a string of bits
 def int_to_bits(n, length):
     return bin(n)[2:].zfill(length)
 
-# Perform a circular left shift
 def left_shift(bits, n):
     return bits[n:] + bits[:n]
 
-# Apply a permutation
 def permute(bits, table):
     return ''.join(bits[i - 1] for i in table)
 
-# Perform the XOR operation
 def xor(bits1, bits2):
     return ''.join(str(int(b1) ^ int(b2)) for b1, b2 in zip(bits1, bits2))
 
-# Substitute using S-boxes
 def substitute(bits):
     output = ''
     for i in range(8):
@@ -185,16 +177,13 @@ def unpad(data):
     padding_len = ord(data[-1])
     return data[:-padding_len]
 
-# Convert a string to bits
 def text_to_bits(text):
     return ''.join(int_to_bits(ord(char), 8) for char in text)
 
-# Convert bits to a string
 def bits_to_text(bits):
     chars = [bits_to_int(bits[i:i + 8]) for i in range(0, len(bits), 8)]
     return ''.join(chr(char) for char in chars)
 
-# Generate a random key
 def generate_random_key():
     return binascii.hexlify(os.urandom(8)).decode('utf-8')
 
