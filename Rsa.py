@@ -1,3 +1,5 @@
+pip install sympy
+
 import streamlit as st
 import random
 from sympy import isprime, mod_inverse
